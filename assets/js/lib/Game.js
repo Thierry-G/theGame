@@ -1,4 +1,6 @@
-class Game {
+import Engine from "./Engine.js";
+
+export default class Game {
     constructor() {
         this.gameCanvas = document.getElementById('gameCanvas');
         this.ctx = this.gameCanvas.getContext('2d');
@@ -41,7 +43,7 @@ class Game {
             this.gameMode = event.target.value;
         });
 
-        this.gameMechanics = new GameMechanics();
+        this.engine = new Engine();
         this.animationFrameId = null;
         this.setupEventListeners();
     }
@@ -57,7 +59,7 @@ class Game {
         window.addEventListener('resize', () => {
             this.gameCanvas.width = window.innerWidth;
             this.gameCanvas.height = window.innerHeight;
-            this.gameMechanics.updateScreenSize();
+            this.engine.updateScreenSize();
         });
     }
 
@@ -80,9 +82,9 @@ class Game {
         this.levelDisplay.innerText = `Level ${this.gameLevel}`;
 
         // ... Autre logique de démarrage du jeu ...
-        this.gameMechanics.updateSquareDirections();
+        this.engine.updateSquareDirections();
         this.animationFrameId = requestAnimationFrame(() => this.update())
-        //this.startAnimation();
+        this.startAnimation();
     }
 
     startAnimation() {
@@ -112,12 +114,12 @@ class Game {
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     
         // Update the squares
-        this.gameMechanics.updateSquares();
+        this.engine.updateSquares();
     
         // Draw the squares
         //this.drawGrid();
     
-        for (let square of this.gameMechanics.squares) {
+        for (let square of this.engine.squares) {
             this.drawSquare(square);
         }
     
@@ -155,31 +157,31 @@ class Game {
 
 
     animateDefaultMode() {
-        this.gameMechanics.updateSquares();
+        this.engine.updateSquares();
     
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     
-        for (let i = 0; i < this.gameMechanics.squares.length; i++) {
-            const square = this.gameMechanics.squares[i];
+        for (let i = 0; i < this.engine.squares.length; i++) {
+            const square = this.engine.squares[i];
             this.drawSquare(square.x, square.y, square.color);
         }
-        // Utilisez les valeurs et méthodes de this.gameMechanics pour mettre à jour l'état du jeu
-        for (let i = 0; i < this.gameMechanics.squareCount * this.gameMechanics.rowCount; i++) {
-            let x = i % this.gameMechanics.squareCount;
-            let y = Math.floor(i / this.gameMechanics.squareCount);
+        // Utilisez les valeurs et méthodes de this.engine pour mettre à jour l'état du jeu
+        for (let i = 0; i < this.engine.squareCount * this.engine.rowCount; i++) {
+            let x = i % this.engine.squareCount;
+            let y = Math.floor(i / this.engine.squareCount);
     
-            x += this.gameMechanics.squareDirections[i].x * this.horizontalSpeed;
-            y += this.gameMechanics.squareDirections[i].y * this.verticalSpeed;
+            x += this.engine.squareDirections[i].x * this.horizontalSpeed;
+            y += this.engine.squareDirections[i].y * this.verticalSpeed;
     
             if (x < 0 || x > this.gameCanvas.width - this.squareSize) {
-                this.gameMechanics.squareDirections[i].x *= -1;
+                this.engine.squareDirections[i].x *= -1;
             }
     
             if (y < 0 || y > this.gameCanvas.height - this.squareSize) {
-                this.gameMechanics.squareDirections[i].y *= -1;
+                this.engine.squareDirections[i].y *= -1;
             }
     
-            this.drawSquare(x, y, this.gameMechanics.colors[i]);
+            this.drawSquare(x, y, this.engine.colors[i]);
         }
         requestAnimationFrame(() => this.animateDefaultMode());
     }

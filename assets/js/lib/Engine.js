@@ -1,6 +1,6 @@
-import GameMechanics from './Engine.js';
+import Game from './Game.js';
 
-class GameEngine {
+export default class GameEngine {
     constructor() {
         this.squares = [];
         this.squareDirections = [];
