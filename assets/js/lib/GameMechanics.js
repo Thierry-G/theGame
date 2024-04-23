@@ -1,3 +1,5 @@
+import GameMechanics from './GameMechanics.js';
+
 class GameMechanics {
     constructor() {
         this.squares = [];
