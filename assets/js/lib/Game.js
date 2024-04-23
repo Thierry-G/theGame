@@ -43,6 +43,17 @@ class Game {
 
         this.gameMechanics = new GameMechanics();
         this.animationFrameId = null;
+        this.setupEventListeners();
+    }
+    setupEventListeners() {
+        this.controlButton.addEventListener('click', this.controlButtonClick.bind(this));
+        this.gameCanvas.addEventListener('click', this.gameCanvasClick.bind(this));
+    
+        const gameModeSelect = document.getElementById('gameModeSelect');
+        gameModeSelect.addEventListener('change', (event) => {
+            this.gameMode = event.target.value;
+        });
+    
         window.addEventListener('resize', () => {
             this.gameCanvas.width = window.innerWidth;
             this.gameCanvas.height = window.innerHeight;
