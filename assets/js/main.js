@@ -1,0 +1,1 @@
+import Game from './lib/Game.js';
