@@ -16,7 +16,7 @@ window.onload = function () {
             break;
     }
 
-    console.log(game.matrix);
+    
 };
 
 function intro() {

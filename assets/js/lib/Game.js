@@ -37,7 +37,7 @@ export default class Game {
         //console.log(this.randomNumbers)
         this.matrix = new Array(this.rowCount);
         for (let i = 0; i < this.matrix; i++) {
-
+            console.log(i)
             this.matrix[i] = new Array(this.squareCount).fill(this.generateRandomNums());
 
 
@@ -59,15 +59,15 @@ export default class Game {
     generateRandomNums() {
         let numbers = [];
         for (let i = 0; i < this.gameLevel; i++) {
-            let number;
             do {
-                number = Math.floor(Math.random() * 44) - 22;
+                let number = Math.floor(Math.random() * 44) - 22;
+                console.log(number)
                 numbers.push(number);
             } while (number === 0);
-            console.log(numbers);
-            this.matrix[i] = numbers;
+            //console.log(numbers);
+            //this.matrix[i] = numbers;
         }
-        console.log(this.matrix)
+        return numbers;
     }
 
     /**
