@@ -64,33 +64,37 @@
                 this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
                 this.totalSquares = 0;
                 this.squareNumbers = Array(this.squareCount * this.rowCount).fill(null);
-                this.randomNumbers = Array(this.squareCount * this.rowCount).fill(this.generatePairs(this.gameLevel)).flat();
+                //this.randomNumbers = Array(this.squareCount * this.rowCount).fill(this.generatePairs(this.gameLevel)).flat();
+                //console.log(this.randomNumbers)
                 this.matrix = new Array(this.rowCount);
                 for (let i = 0; i < this.rowCount; i++) {
-                    this.matrix[i] = new Array(this.squareCount).fill(0);
+                    this.matrix[i] = new Array(this.squareCount).fill(this.generatePairs();
+
+
+
                 }
 
                 // Add event listeners
                 this.controlButton.addEventListener('click', () => this.controlButtonClick());
                 this.gameCanvas.addEventListener('click', (event) => this.canvasClick(event));
             }
-
+            /**
+                * The horizontal speed of the squares.
+                * @type {number}
+                */
             /**
              * Generates pairs of random numbers for the game.
-             * @param {number} level - The current game level.
-             * @returns {number[]} An array of pairs of random numbers.
+             * @returns  An array of random numbers.
              */
-            generatePairs(level) {
-                let pairs = [];
-                for (let i = 0; i < level; i++) {
+            generate() {
+                let  = [];
+                for (let i = 0; i < this.gameLevel; i++) {
                     let number;
                     do {
                         number = Math.floor(Math.random() * 44) - 22;
-                    } while (number === 0 || pairs.includes(number));
-                    pairs.push(number, number);
+                    } while (number === 0);
+                    this.matrix[i] = number;
                 }
-                console.log(pairs)
-                return pairs;
             }
 
             /**
@@ -132,7 +136,7 @@
                             y: squareY,
                             color: this.colors[i],
                             number: this.squareNumbers[i],
-                            randomNumber: this.randomNumbers[i]
+                            randomNumber: this.randomNumbers[i].number
                         };
                     }
                 }
