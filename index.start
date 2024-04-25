@@ -68,7 +68,7 @@
                 //console.log(this.randomNumbers)
                 this.matrix = new Array(this.rowCount);
                 for (let i = 0; i < this.rowCount; i++) {
-                    this.matrix[i] = new Array(this.squareCount).fill(this.generatePairs();
+                    this.matrix[i] = new Array(this.squareCount).fill(this.generatePairs());
 
 
 

@@ -6,6 +6,8 @@ export default class Game {
      * Initializes the game.
      */
     constructor() {
+        this.animationId = null;
+
         // Get the game canvas and its 2D rendering context
         this.gameCanvas = document.getElementById('gameCanvas');
         this.ctx = this.gameCanvas.getContext('2d');
@@ -17,15 +19,16 @@ export default class Game {
         // Set initial game settings
         this.squareCount = 4;
         this.rowCount = 4;
+
         this.squareSize = this.gameCanvas.width / (this.squareCount * 2);
         this.horizontalSpacing = this.gameCanvas.width / (this.squareCount + 1);
         this.verticalSpacing = this.gameCanvas.height / (this.rowCount + 1);
         this.horizontalPosition = this.horizontalSpacing;
         this.verticalPosition = this.verticalSpacing;
-        this.animationId = null;
+
         this.controlButton = document.getElementById('controlButton');
         this.levelDisplay = document.getElementById('levelDisplay');
-        this.gameLevel = 1;
+        this.gameLevel = 0;
         this.replayCount = 0;
         this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
         this.totalSquares = 0;
@@ -33,8 +36,9 @@ export default class Game {
         //this.randomNumbers = Array(this.squareCount * this.rowCount).fill(this.generatePairs(this.gameLevel)).flat();
         //console.log(this.randomNumbers)
         this.matrix = new Array(this.rowCount);
-        for (let i = 0; i < this.rowCount; i++) {
-            this.matrix[i] = new Array(this.squareCount).fill(this.generatePairs();
+        for (let i = 0; i < this.matrix; i++) {
+
+            this.matrix[i] = new Array(this.squareCount).fill(this.generateRandomNums());
 
 
 
@@ -49,18 +53,21 @@ export default class Game {
         * @type {number}
         */
     /**
-     * Generates pairs of random numbers for the game.
+     * Generates an  numbers for the game.
      * @returns  An array of random numbers.
      */
-    generate() {
-        let  = [];
+    generateRandomNums() {
+        let numbers = [];
         for (let i = 0; i < this.gameLevel; i++) {
             let number;
             do {
                 number = Math.floor(Math.random() * 44) - 22;
+                numbers.push(number);
             } while (number === 0);
-            this.matrix[i] = number;
+            console.log(numbers);
+            this.matrix[i] = numbers;
         }
+        console.log(this.matrix)
     }
 
     /**
@@ -86,6 +93,7 @@ export default class Game {
             let column = i % this.squareCount;
             let squareX = this.horizontalPosition + column * (this.squareSize + this.horizontalSpacing);
             let squareY = this.verticalPosition + row * (this.squareSize + this.verticalSpacing);
+           
             if (squareY > 0 && squareY < this.gameCanvas.height - this.squareSize) {
                 this.ctx.fillStyle = this.colors[i];
                 this.ctx.fillRect(squareX, squareY, this.squareSize, this.squareSize);
@@ -97,13 +105,15 @@ export default class Game {
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
                 this.ctx.fillText(this.squareNumbers[i] + ' (' + this.randomNumbers[i] + ')', squareX + this.squareSize / 2, squareY + this.squareSize / 2);
+                /*
                 this.matrix[row][column] = {
                     x: squareX,
                     y: squareY,
                     color: this.colors[i],
                     number: this.squareNumbers[i],
-                    randomNumber: this.randomNumbers[i].number
+                    randomNumber: this.randomNumbers[i].numbers
                 };
+                */
             }
         }
     }
@@ -152,7 +162,7 @@ export default class Game {
             this.gameLevel += 1;
             this.levelDisplay.innerText = 'Level ' + this.gameLevel;
             this.levelDisplay.style.visibility = 'visible';
-            this.randomNumbers = this.generatePairs(this.gameLevel);
+            //this.randomNumbers = this.generatePairs(this.gameLevel);
             this.shuffleArray(this.randomNumbers);
             this.animationId = requestAnimationFrame(() => this.updateGame());
             this.controlButton.innerText = 'Pause';
