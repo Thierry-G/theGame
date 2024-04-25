@@ -1,31 +1,25 @@
-class Square {
-    constructor(ctx, l, espacementH, espacementV, colors) {
+export default class Square {
+    constructor(ctx, x, y, size, color, number, randomNumber) {
         this.ctx = ctx;
-        this.l = l;
-        this.espacementH = espacementH;
-        this.espacementV = espacementV;
-        this.colors = colors;
-        this.squareNumbers = [];
-        this.totalSquares = 0;
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.color = color;
+        this.number = number;
+        this.randomNumber = randomNumber;
     }
 
-    draw(position, verticalPosition, n, m) {
-        for (let i = 0; i < n * m; i++) {
-            let j = Math.floor(i / n);
-            let k = i % n;
-            if (position + k * (this.l + this.espacementH) > 0 && position + k * (this.l + this.espacementH) < this.ctx.canvas.width) {
-                this.ctx.fillStyle = this.colors[i]; 
-                this.ctx.fillRect(position + k * (this.l + this.espacementH), verticalPosition + j * (this.l + this.espacementV), this.l, this.l); 
+    draw() {
+        this.ctx.fillStyle = this.color;
+        this.ctx.fillRect(this.x, this.y, this.size, this.size);
 
-                if (!this.squareNumbers[i]) {
-                    this.totalSquares += 1;
-                    this.squareNumbers[i] = this.totalSquares;
-                }
-                this.ctx.fillStyle = '#FFFFFF'; 
-                this.ctx.textAlign = 'center'; 
-                this.ctx.textBaseline = 'middle'; 
-                this.ctx.fillText(this.squareNumbers[i], position + k * (this.l + this.espacementH) + this.l / 2, verticalPosition + j * (this.l + this.espacementV) + this.l / 2); 
-            }
-        }
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(this.number + ' (' + this.randomNumber + ')', this.x + this.size / 2, this.y + this.size / 2);
+    }
+
+    isClicked(x, y) {
+        return x > this.x && x < this.x + this.size && y > this.y && y < this.y + this.size;
     }
 }

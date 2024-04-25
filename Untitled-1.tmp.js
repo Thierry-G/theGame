@@ -1,61 +1,32 @@
-<!--
-    This HTML file represents a simple game called "The Game".
-    It contains a canvas element where the game is rendered, as well as buttons and a level display.
-    The game logic is implemented in JavaScript using the HTML5 Canvas API.
--->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <head>
-        <meta charset="utf-8">
-        <title>The Game</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/assets/css/main.css">
-    </head>
+    <title>The Game</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
 
 <body>
-    <div id="header">
-        <!-- The level display element shows the current level of the game -->
-        <div id="levelDisplay" class="level-display">
-            Level 1
-        </div>
-    </div>
-    <!-- The control button element is used to start, pause, resume, or replay the game -->
-    <button id="controlButton" class="control-button" type="button">
-        Play
-    </button>
-
-    <!-- The game canvas element is where the game is rendered -->
-    <canvas id="gameCanvas" class="game-canvas"></canvas>
-
+    <div id="levelDisplay"
+        style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); font-size: 20px; visibility: hidden;">
+        Level 1</div>
+    <button id="controlButton"
+        style="position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);">Play</button>
+    <canvas id="gameCanvas" style="background-color: #FFFFFF; border-radius: 5%; padding: 10px;"></canvas>
     <script>
-        /**
-         * Represents the game logic and rendering.
-         */
         class Game {
-            /**
-             * Initializes the game.
-             */
             constructor() {
-                // Get the game canvas and its 2D rendering context
                 this.gameCanvas = document.getElementById('gameCanvas');
                 this.ctx = this.gameCanvas.getContext('2d');
-
-                // Set the canvas size to match the window size
                 this.gameCanvas.width = window.innerWidth;
                 this.gameCanvas.height = window.innerHeight;
-
-                // Set initial game settings
                 this.squareCount = 4;
                 this.rowCount = 4;
                 this.squareSize = this.gameCanvas.width / (this.squareCount * 2);
-                this.horizontalSpacing = this.gameCanvas.width / (this.squareCount + 1);
-                this.verticalSpacing = this.gameCanvas.height / (this.rowCount + 1);
-                this.horizontalPosition = this.horizontalSpacing;
-                this.verticalPosition = this.verticalSpacing;
+                this.horizontalSpacing = this.squareSize / 2;
+                this.verticalSpacing = this.horizontalSpacing;
+                this.horizontalPosition = 0;
+                this.verticalPosition = 0;
                 this.animationId = null;
                 this.controlButton = document.getElementById('controlButton');
                 this.levelDisplay = document.getElementById('levelDisplay');
@@ -64,44 +35,27 @@
                 this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
                 this.totalSquares = 0;
                 this.squareNumbers = Array(this.squareCount * this.rowCount).fill(null);
-                //this.randomNumbers = Array(this.squareCount * this.rowCount).fill(this.generatePairs(this.gameLevel)).flat();
-                //console.log(this.randomNumbers)
+                this.randomNumbers = Array(this.squareCount * this.rowCount).fill(null);
                 this.matrix = new Array(this.rowCount);
                 for (let i = 0; i < this.rowCount; i++) {
-                    this.matrix[i] = new Array(this.squareCount).fill(this.generatePairs();
-
-
-
+                    this.matrix[i] = new Array(this.squareCount).fill(null);
                 }
-
-                // Add event listeners
                 this.controlButton.addEventListener('click', () => this.controlButtonClick());
                 this.gameCanvas.addEventListener('click', (event) => this.canvasClick(event));
             }
-            /**
-                * The horizontal speed of the squares.
-                * @type {number}
-                */
-            /**
-             * Generates pairs of random numbers for the game.
-             * @returns  An array of random numbers.
-             */
-            generate() {
-                let  = [];
-                for (let i = 0; i < this.gameLevel; i++) {
+
+            generatePairs(level) {
+                let pairs = [];
+                for (let i = 0; i < level; i++) {
                     let number;
                     do {
                         number = Math.floor(Math.random() * 44) - 22;
-                    } while (number === 0);
-                    this.matrix[i] = number;
+                    } while (number === 0 || pairs.includes(number));
+                    pairs.push(number, number);
                 }
+                return pairs;
             }
 
-            /**
-             * Shuffles the elements of an array randomly.
-             * @param {any[]} array - The array to be shuffled.
-             * @returns {any[]} The shuffled array.
-             */
             shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     let j = Math.floor(Math.random() * (i + 1));
@@ -109,10 +63,7 @@
                 }
                 return array;
             }
-
-            /**
-             * Draws the squares on the game canvas.
-             */
+            
             drawSquares() {
                 this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
                 for (let i = 0; i < this.squareCount * this.rowCount; i++) {
@@ -136,15 +87,11 @@
                             y: squareY,
                             color: this.colors[i],
                             number: this.squareNumbers[i],
-                            randomNumber: this.randomNumbers[i].number
+                            randomNumber: this.randomNumbers[i]
                         };
                     }
                 }
             }
-
-            /**
-             * Updates the game state and renders the game.
-             */
             updateGame() {
                 this.drawSquares();
                 this.verticalPosition += this.verticalSpeed;
@@ -161,10 +108,7 @@
                     this.animationId = requestAnimationFrame(() => this.updateGame());
                 }
             }
-
-            /**
-             * Handles the click event on the control button.
-             */
+    
             controlButtonClick() {
                 if (this.controlButton.innerText === 'Play' || this.controlButton.innerText === 'Replay') {
                     if (this.animationId) {
@@ -179,7 +123,7 @@
                     this.replayCount += 1;
                     if (this.replayCount % 3 === 0) {
                         this.verticalSpeed += 0.5;
-                        this.horizontalShift += 10;
+                        this.horizontalShift += 10; 
                     }
                     this.horizontalSpeed = 1;
                     this.verticalSpeed = 1;
@@ -199,10 +143,6 @@
                 }
             }
 
-            /**
-             * Handles the click event on the game canvas.
-             * @param {MouseEvent} event - The click event.
-             */
             canvasClick(event) {
                 let x = event.clientX - this.gameCanvas.getBoundingClientRect().left;
                 let y = event.clientY - this.gameCanvas.getBoundingClientRect().top;
@@ -222,10 +162,11 @@
             }
         }
 
-        // Create a new instance of the Game class when the window loads
         window.onload = function () {
-            let game = new Game();
-            console.log(game.matrix);
+           let game = new Game();
+           console.log(game.matrix)
+           console.log(game.rowCount)
+            
         };
     </script>
 </body>

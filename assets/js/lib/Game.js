@@ -1,5 +1,6 @@
 import Engine from "./Engine.js";
 
+
 export default class Game {
     constructor() {
         this.gameCanvas = document.getElementById('gameCanvas');
@@ -50,26 +51,22 @@ export default class Game {
     setupEventListeners() {
         this.controlButton.addEventListener('click', this.controlButtonClick.bind(this));
         this.gameCanvas.addEventListener('click', this.gameCanvasClick.bind(this));
-    
+
         const gameModeSelect = document.getElementById('gameModeSelect');
         gameModeSelect.addEventListener('change', (event) => {
             this.gameMode = event.target.value;
         });
-    
+
         window.addEventListener('resize', () => {
-            this.gameCanvas.width = window.innerWidth;
-            this.gameCanvas.height = window.innerHeight;
+            this.gameCanvas.width = screen.width;
+            this.gameCanvas.height = screen.height;
             this.engine.updateScreenSize();
         });
     }
 
     // ... Reste des méthodes JavaScript ...
     controlButtonClick() {
-        if (this.controlButton.innerText === 'Play') {
-            this.startGame();
-        } else {
-            this.stopGame();
-        }
+       "Play" === this.controlButton.innerText ? this.startGame() : this.stopGame()
     }
 
     gameCanvasClick(event) {
@@ -77,14 +74,18 @@ export default class Game {
     }
 
     startGame() {
-        this.controlButton.innerText = 'Stop';
+        this.controlButton.innerText = 'Play';
         this.levelDisplay.style.visibility = 'visible';
         this.levelDisplay.innerText = `Level ${this.gameLevel}`;
 
         // ... Autre logique de démarrage du jeu ...
-        this.engine.updateSquareDirections();
-        this.animationFrameId = requestAnimationFrame(() => this.update())
-        this.startAnimation();
+        console.log(this.engine.updateSquareDirections());
+        /*
+        this.animationFrameId = requestAnimationFrame(() => {
+            this.update();
+
+        });
+        */
     }
 
     startAnimation() {
@@ -112,20 +113,20 @@ export default class Game {
     update() {
         // Clear the canvas
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    
+
         // Update the squares
         this.engine.updateSquares();
-    
+
         // Draw the squares
         //this.drawGrid();
-    
+
         for (let square of this.engine.squares) {
             this.drawSquare(square);
         }
-    
+
         // Schedule the next update
         this.animationFrameId = requestAnimationFrame(this.update.bind(this));
-    
+
     }
 
 
@@ -142,15 +143,15 @@ export default class Game {
     animate() {
         // Effacer le canvas
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    
+
         // Appeler la méthode d'animation appropriée
         if (this.gameMode === 'default') {
             this.animateDefaultMode();
         }
-    
+
         // Dessiner la nouvelle frame
         this.drawGrid();
-    
+
         // Demander la prochaine frame
         this.animationId = requestAnimationFrame(this.animate.bind(this));
     }
@@ -158,9 +159,9 @@ export default class Game {
 
     animateDefaultMode() {
         this.engine.updateSquares();
-    
+
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    
+
         for (let i = 0; i < this.engine.squares.length; i++) {
             const square = this.engine.squares[i];
             this.drawSquare(square.x, square.y, square.color);
@@ -169,18 +170,18 @@ export default class Game {
         for (let i = 0; i < this.engine.squareCount * this.engine.rowCount; i++) {
             let x = i % this.engine.squareCount;
             let y = Math.floor(i / this.engine.squareCount);
-    
+
             x += this.engine.squareDirections[i].x * this.horizontalSpeed;
             y += this.engine.squareDirections[i].y * this.verticalSpeed;
-    
+
             if (x < 0 || x > this.gameCanvas.width - this.squareSize) {
                 this.engine.squareDirections[i].x *= -1;
             }
-    
+
             if (y < 0 || y > this.gameCanvas.height - this.squareSize) {
                 this.engine.squareDirections[i].y *= -1;
             }
-    
+
             this.drawSquare(x, y, this.engine.colors[i]);
         }
         requestAnimationFrame(() => this.animateDefaultMode());
@@ -211,7 +212,7 @@ export default class Game {
         }
         return true;
     }
- 
+
 
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -253,13 +254,13 @@ export default class Game {
 
     animate() {
         // Mettre à jour l'état du jeu ici
-    
+
         // Effacer le canvas
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    
+
         // Dessiner la nouvelle frame
         this.drawGrid();
-    
+
         // Demander la prochaine frame
         this.animationId = requestAnimationFrame(this.animate.bind(this));
     }
