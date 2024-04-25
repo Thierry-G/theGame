@@ -1,22 +1,14 @@
-/**
-         * Represents the game logic and rendering.
-         */
+import Board from "./Board.js";
 export default class Game {
-    /**
-     * Initializes the game.
-     */
     constructor() {
         this.animationId = null;
 
-        // Get the game canvas and its 2D rendering context
         this.gameCanvas = document.getElementById('gameCanvas');
         this.ctx = this.gameCanvas.getContext('2d');
 
-        // Set the canvas size to match the window size
         this.gameCanvas.width = window.innerWidth;
         this.gameCanvas.height = window.innerHeight;
 
-        // Set initial game settings
         this.squareCount = 4;
         this.rowCount = 4;
 
@@ -30,62 +22,27 @@ export default class Game {
         this.levelDisplay = document.getElementById('levelDisplay');
         this.gameLevel = 0;
         this.replayCount = 0;
-        this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
         this.totalSquares = 0;
+        this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
         this.squareNumbers = Array(this.squareCount * this.rowCount).fill(null);
-        //this.randomNumbers = Array(this.squareCount * this.rowCount).fill(this.generatePairs(this.gameLevel)).flat();
-        //console.log(this.randomNumbers)
-        this.matrix = new Array(this.rowCount);
-        for (let i = 0; i < this.matrix; i++) {
-            console.log(i)
-            this.matrix[i] = new Array(this.squareCount).fill(this.generateRandomNums());
 
+        this.board = new Board(this.rowCount, this.squareCount);
+        console.log(this.board);
+        //console.log(this.round.countPairs() +' pairs found in the matrix');
+        //console.log(this.round.countPairsInRow());
+        
+        //this.matrix = new Engine(this.rowCount, this.squareCount);
+        // this.matrix = new Array(this.rowCount);
+        // console.log(this.matrix)
+        // for (let i = 0; i < this.rowCount; i++) {
+        //     console.log(`i: ${i}`)
+        //     this.matrix[i] = new Array(this.squareCount).fill(this.generateRandomNums());
+        // }
 
-
-        }
-
-        // Add event listeners
         this.controlButton.addEventListener('click', () => this.controlButtonClick());
         this.gameCanvas.addEventListener('click', (event) => this.canvasClick(event));
     }
-    /**
-        * The horizontal speed of the squares.
-        * @type {number}
-        */
-    /**
-     * Generates an  numbers for the game.
-     * @returns  An array of random numbers.
-     */
-    generateRandomNums() {
-        let numbers = [];
-        for (let i = 0; i < this.gameLevel; i++) {
-            do {
-                let number = Math.floor(Math.random() * 44) - 22;
-                console.log(number)
-                numbers.push(number);
-            } while (number === 0);
-            //console.log(numbers);
-            //this.matrix[i] = numbers;
-        }
-        return numbers;
-    }
 
-    /**
-     * Shuffles the elements of an array randomly.
-     * @param {any[]} array - The array to be shuffled.
-     * @returns {any[]} The shuffled array.
-     */
-    shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    /**
-     * Draws the squares on the game canvas.
-     */
     drawSquares() {
         this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
         for (let i = 0; i < this.squareCount * this.rowCount; i++) {
@@ -93,7 +50,7 @@ export default class Game {
             let column = i % this.squareCount;
             let squareX = this.horizontalPosition + column * (this.squareSize + this.horizontalSpacing);
             let squareY = this.verticalPosition + row * (this.squareSize + this.verticalSpacing);
-           
+
             if (squareY > 0 && squareY < this.gameCanvas.height - this.squareSize) {
                 this.ctx.fillStyle = this.colors[i];
                 this.ctx.fillRect(squareX, squareY, this.squareSize, this.squareSize);
@@ -104,7 +61,7 @@ export default class Game {
                 this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                this.ctx.fillText(this.squareNumbers[i] + ' (' + this.randomNumbers[i] + ')', squareX + this.squareSize / 2, squareY + this.squareSize / 2);
+                // this.ctx.fillText(this.squareNumbers[i] + ' (' + this.randomNumbers[i] + ')', squareX + this.squareSize / 2, squareY + this.squareSize / 2);
                 /*
                 this.matrix[row][column] = {
                     x: squareX,
@@ -118,9 +75,6 @@ export default class Game {
         }
     }
 
-    /**
-     * Updates the game state and renders the game.
-     */
     updateGame() {
         this.drawSquares();
         this.verticalPosition += this.verticalSpeed;
@@ -138,9 +92,6 @@ export default class Game {
         }
     }
 
-    /**
-     * Handles the click event on the control button.
-     */
     controlButtonClick() {
         if (this.controlButton.innerText === 'Play' || this.controlButton.innerText === 'Replay') {
             if (this.animationId) {
@@ -151,19 +102,19 @@ export default class Game {
             this.verticalPosition = 0;
             this.totalSquares = 0;
             this.squareNumbers = Array(this.squareCount * this.rowCount).fill(null);
-            this.randomNumbers = Array(this.squareCount * this.rowCount).fill(null);
+            // this.randomNumbers = Array(this.squareCount * this.rowCount).fill(null);
             this.replayCount += 1;
-            if (this.replayCount % 3 === 0) {
-                this.verticalSpeed += 0.5;
-                this.horizontalShift += 10;
-            }
+            // if (this.replayCount % 3 === 0) {
+            //     this.verticalSpeed += 0.5;
+            //     this.horizontalShift += 10;
+            // }
             this.horizontalSpeed = 1;
             this.verticalSpeed = 1;
             this.gameLevel += 1;
             this.levelDisplay.innerText = 'Level ' + this.gameLevel;
             this.levelDisplay.style.visibility = 'visible';
-            //this.randomNumbers = this.generatePairs(this.gameLevel);
-            this.shuffleArray(this.randomNumbers);
+            // this.randomNumbers = this.generatePairs(this.gameLevel);
+            // this.shuffleArray(this.randomNumbers);
             this.animationId = requestAnimationFrame(() => this.updateGame());
             this.controlButton.innerText = 'Pause';
         } else if (this.controlButton.innerText === 'Pause') {
@@ -175,10 +126,6 @@ export default class Game {
         }
     }
 
-    /**
-     * Handles the click event on the game canvas.
-     * @param {MouseEvent} event - The click event.
-     */
     canvasClick(event) {
         let x = event.clientX - this.gameCanvas.getBoundingClientRect().left;
         let y = event.clientY - this.gameCanvas.getBoundingClientRect().top;
@@ -192,7 +139,7 @@ export default class Game {
                 this.ctx.fillStyle = '#0000FF';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                this.ctx.fillText(this.squareNumbers[i] + ' (' + this.randomNumbers[i] + ')', squareX + this.squareSize / 2, squareY + this.squareSize / 2);
+                // this.ctx.fillText(this.squareNumbers[i] + ' (' + this.randomNumbers[i] + ')', squareX + this.squareSize / 2, squareY + this.squareSize / 2);
             }
         }
     }
