@@ -12,8 +12,12 @@ export default class Game {
         this.squareCount = 4;
         this.rowCount = 4;
 
-        this.squareSize = this.gameCanvas.width / (this.squareCount * 2);
-        this.horizontalSpacing = this.gameCanvas.width / (this.squareCount + 1);
+        //this.squareSize = this.gameCanvas.width / (this.squareCount * 2);
+        //this.horizontalSpacing = this.gameCanvas.width / (this.squareCount + 1);
+        //this.squareSize = Math.min(this.gameCanvas.width, this.gameCanvas.height) / this.squareCount;
+        this.squareSize = 96;
+        this.horizontalSpacing = this.squareSize / 4;
+        
         this.verticalSpacing = this.gameCanvas.height / (this.rowCount + 1);
         this.horizontalPosition = this.horizontalSpacing;
         this.verticalPosition = this.verticalSpacing;
@@ -134,6 +138,7 @@ export default class Game {
             let column = i % this.squareCount;
             let squareX = this.horizontalPosition + column * (this.squareSize + this.horizontalSpacing);
             let squareY = this.verticalPosition + row * (this.squareSize + this.verticalSpacing);
+            console.log(squareX, squareY, this.squareSize, this.squareSize);
             if (x > squareX && x < squareX + this.squareSize && y > squareY && y < squareY + this.squareSize) {
                 this.colors[i] = '#FFFFFF';
                 this.ctx.fillStyle = '#0000FF';

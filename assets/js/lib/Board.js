@@ -11,6 +11,7 @@ export default class Board {
         this.matrix = Array(rows).fill().map(() => Array(columns).fill(0));
         do {
             this.randomizeMatrix();
+            console.log(this.countPairs() + ' pairs found in the matrix');
 
         }   
         while (this.countPairs() === 0)
@@ -77,6 +78,7 @@ export default class Board {
             }, 0);
             pairs += rowPairs;
         });
+       // console.log(pairs  + ' pairs found in the matrix');
         return pairs;
     }
 
