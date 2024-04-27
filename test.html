@@ -23,8 +23,7 @@
     <script>
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
-
-        const maxSquaresPerLine = 4;
+        let squareId = 0; // global counter for square IDs
         let squares = [];
         let selectedSquare = null;
         let animationId = null;
@@ -32,216 +31,71 @@
         let squareSize; // size of the squares
         let allSquaresDisplayed = false;
 
+        // Define the matrix
+        let matrix = {
+            cols: 4,
+            rows: 4
+        };
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             const minDimension = Math.min(canvas.width, canvas.height);
-            squareSize = Math.round(minDimension / (maxSquaresPerLine + 1));
-            spaceBetweenSquares = (minDimension - squareSize * maxSquaresPerLine) / (maxSquaresPerLine + 1);
+            squareSize = Math.round(minDimension / (matrix.cols + 1));
+            spaceBetweenSquares = (minDimension - squareSize * matrix.cols) / (matrix.cols + 1);
             drawSquares();
         }
 
-        function drawSquare(x, y, size, color, borderColor) {
+        function drawSquare(x, y, size, color, borderColor, id) {
             ctx.fillStyle = color;
             ctx.fillRect(x, y, size, size);
             ctx.strokeStyle = borderColor;
             ctx.strokeRect(x, y, size, size);
-        }
 
-        function drawCircle(x, y, radius, color, borderColor) {
-            ctx.beginPath();
-            ctx.arc(x + radius, y + radius, radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = borderColor;
-            ctx.stroke();
+            // Draw square ID
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '16px Arial';
+            ctx.fillText(id, x + size / 2, y + size / 2);
         }
-
 
         function drawSquares() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            squares.forEach((square, index) => {
-
-                let row = Math.floor(index / maxSquaresPerLine);
-                let col = index % maxSquaresPerLine;
-                let text = `${col},${row}`; // text to be displayed in the square
-
-                if (square.isExploding) {
-
-
-                    let radius = square.size / 2;
-                    drawCircle(square.x, square.y, radius, square.color, square.borderColor);
-                    square.size -= 2; // reduce the size to create the explosion effect
-
-                    if (square.size <= 0) {
-                        squares = squares.filter(s => s !== square); // remove the square when its size is 0
-                    }
-                } else {
+            squares.forEach(square => {
+                if (square.value === 1) {
                     let size = square === selectedSquare ? squareSize * 1.2 : squareSize; // make the selected square larger
-                    drawSquare(square.x, square.y, size, square.color, square.borderColor);
+                    drawSquare(square.x, square.y, size, square.color, square.borderColor, square.id);
                 }
             });
         }
 
         function addSquare() {
-            let row = 0; // new squares always appear on the top row
-            let col = squares.length % maxSquaresPerLine;
-            let x = (col + 1) * spaceBetweenSquares + col * squareSize;
-            let y = (row + 1) * spaceBetweenSquares + row * squareSize;
-
-            squares.unshift({ x, y, color: 'blue', borderColor: 'black' }); // add the new square at the beginning of the array
-
-            // Move all squares down when a new line is started
-            if (squares.length % maxSquaresPerLine === 1 && squares.length !== 0) {
-                squares.forEach(square => {
-                    if (square !== squares[0]) { // don't move the new square
-                        square.y += squareSize + spaceBetweenSquares;
-                    }
-                });
+            if (squares.length >= matrix.cols * matrix.rows) {
+                allSquaresDisplayed = true;
+                return;
             }
 
+            let row = Math.floor(squares.length / matrix.cols); // calculate the row for the new square
+            let col = squares.length % matrix.cols; // calculate the column for the new square
+            let x = col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares; // adjust x coordinate based on the column
+            let y = row * (squareSize + spaceBetweenSquares) + spaceBetweenSquares; // adjust y coordinate based on row
+
+            let newSquare = { id: squareId++, row, col, x, y, color: 'blue', borderColor: 'black', value: 1 };
+
+            squares.push(newSquare); // add the new square at the end of the array
+
             drawSquares();
         }
 
-
-        function moveSquaresRight() {
-            squares.forEach(square => {
-                square.x += squareSize + spaceBetweenSquares;
-            });
-            squares = squares.filter(square => square.x < canvas.width); // remove squares that are outside the canvas
-            drawSquares();
-        }
-
-        function moveSquaresDown() {
-            squares.forEach(square => {
-                square.y += squareSize + spaceBetweenSquares;
-            });
-            squares = squares.filter(square => square.y < canvas.height); // remove squares that are outside the canvas
-            drawSquares();
-        }
-
-        function animate() {
+        setInterval(() => {
             if (!allSquaresDisplayed) {
-                addSquare();
-                if (squares.length >= maxSquaresPerLine * maxSquaresPerLine) {
-                    allSquaresDisplayed = true;
-                }
-            } else {
-                moveSquaresRight();
-                //moveSquaresDown();
+                addSquare(); // add a new square when there are no squares or the last square has enough space to the right
             }
-            animationId = setTimeout(animate, 1000); // add delay
-        }
+        }, 1000);
 
-        canvas.addEventListener('click', function (event) {
-
-
-
-            let rect = canvas.getBoundingClientRect();
-            let x = event.clientX - rect.left;
-            let y = event.clientY - rect.top;
-
-            canvas.addEventListener('click', function (event) {
-                let rect = canvas.getBoundingClientRect();
-                let x = event.clientX - rect.left;
-                let y = event.clientY - rect.top;
-
-                squares.forEach((square, index) => {
-                    if (x > square.x && x < square.x + squareSize && y > square.y && y < square.y + squareSize) {
-                        if (selectedSquare) {
-                            squares = squares.filter(s => s !== square && s !== selectedSquare);
-                            selectedSquare = null;
-                            // Shift the remaining squares to fill the gap
-                            for (let i = index; i < squares.length; i++) {
-                                let row = Math.floor(i / maxSquaresPerLine);
-                                let col = i % maxSquaresPerLine;
-                                squares[i].x = (col + 1) * spaceBetweenSquares + col * squareSize;
-                                squares[i].y = (row + 1) * spaceBetweenSquares + row * squareSize;
-                            }
-                        } else {
-                            square.color = 'white';
-                            square.borderColor = 'blue';
-                            selectedSquare = square;
-                        }
-                        drawSquares();
-                    }
-                });
-            });
-
-            /*
-            squares.forEach((square, index) => {
-                if (x > square.x && x < square.x + squareSize && y > square.y && y < square.y + squareSize) {
-                    if (selectedSquare) {
-                        squares = squares.filter(s => s !== square && s !== selectedSquare);
-                        selectedSquare = null;
-                        // Shift the remaining squares to fill the gap
-                        for (let i = index; i < squares.length; i++) {
-                            let row = Math.floor(i / maxSquaresPerLine);
-                            let col = i % maxSquaresPerLine;
-                            squares[i].x = (col + 1) * spaceBetweenSquares + col * squareSize;
-                            squares[i].y = (row + 1) * spaceBetweenSquares + row * squareSize;
-                        }
-                    } else {
-                        square.color = 'white';
-                        square.borderColor = 'blue';
-                        selectedSquare = square;
-                    }
-                    drawSquares();
-                }
-
-            });
-
-
-            squares.forEach((square, index) => {
-                if (x > square.x && x < square.x + squareSize && y > square.y && y < square.y + squareSize) {
-                    if (selectedSquare) {
-                        squares = squares.filter(s => s !== square && s !== selectedSquare);
-                        selectedSquare = null;
-                        // Shift the remaining squares to fill the gap
-                        for (let i = index; i < squares.length; i++) {
-                            let row = Math.floor(i / maxSquaresPerLine);
-                            let col = i % maxSquaresPerLine;
-                            squares[i].x = (col + 1) * spaceBetweenSquares + col * squareSize;
-                            squares[i].y = (row + 1) * spaceBetweenSquares + row * squareSize;
-                        }
-                    } else {
-                        square.color = 'white';
-                        square.borderColor = 'blue';
-                        selectedSquare = square;
-                    }
-                    drawSquares();
-                }
-            });*/
-
-            squares.forEach((square, index) => {
-                if (x > square.x && x < square.x + squareSize && y > square.y && y < square.y + squareSize) {
-                    if (selectedSquare) {
-                        squares = squares.filter(s => s !== square && s !== selectedSquare);
-                        selectedSquare = null;
-                        // Shift the remaining squares to fill the gap
-                        for (let i = index; i < squares.length; i++) {
-                            let row = Math.floor(i / maxSquaresPerLine);
-                            let col = i % maxSquaresPerLine;
-                            squares[i].x = (col + 1) * spaceBetweenSquares + col * squareSize;
-                            squares[i].y = (row + 1) * spaceBetweenSquares + row * squareSize;
-                        }
-                    } else {
-                        square.color = 'white';
-                        square.borderColor = 'blue';
-                        selectedSquare = square;
-                    }
-                    drawSquares();
-                }
-            });
-
-        });
-
-        window.addEventListener('resize', resizeCanvas, false);
-        window.addEventListener('load', function () {
-            resizeCanvas();
-            animate();
-        }, false);
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // initial canvas setup
     </script>
 </body>
 
