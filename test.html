@@ -88,9 +88,33 @@
             drawSquares();
         }
 
+        function moveSquares() {
+            let rowsToMoveDown = new Set();
+            squares.forEach(square => {
+                if (square.value === 1 && square.x + squareSize >= canvas.width) {
+                    rowsToMoveDown.add(square.row); // add the row to the set if any square in the row touches the right side
+                }
+            });
+
+            squares.forEach(square => {
+                if (square.value === 1) {
+                    if (!rowsToMoveDown.has(square.row)) {
+                        square.x += 5; // move to the right
+                    } else if (square.y + squareSize < canvas.height) {
+                        square.y += 5; // move down
+                    } else {
+                        square.value = 0; // make the square disappear
+                    }
+                }
+            });
+            drawSquares();
+        }
+
         setInterval(() => {
             if (!allSquaresDisplayed) {
                 addSquare(); // add a new square when there are no squares or the last square has enough space to the right
+            } else {
+                moveSquares(); // move squares to the right and down
             }
         }, 1000);
 
