@@ -24,12 +24,8 @@
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
         let squares = [];
-        let selectedSquare = null;
-        let animationId = null;
-        let spaceBetweenSquares;
         let squareSize;
-        let allSquaresDisplayed = false;
-        let furthestSquareInEachRow = [];
+        let spaceBetweenSquares;
 
         let matrix = {
             cols: 4,
@@ -39,9 +35,8 @@
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            const minDimension = Math.min(canvas.width, canvas.height);
-            squareSize = Math.floor(minDimension / (matrix.cols + 1));
-            spaceBetweenSquares = Math.floor((minDimension - squareSize * matrix.cols) / (matrix.cols + 1));
+            squareSize = Math.floor(canvas.width / matrix.cols);
+            spaceBetweenSquares = Math.floor((canvas.width - squareSize * matrix.cols) / (matrix.cols + 1));
             drawSquares();
         }
 
@@ -54,15 +49,13 @@
 
         function drawSquares() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            squares.forEach((square, index) => {
-                let size = square === selectedSquare ? squareSize * 1.2 : squareSize;
-                drawSquare(square.x, square.y, size, square.color, square.borderColor);
+            squares.forEach((square) => {
+                drawSquare(square.x, square.y, squareSize, square.color, square.borderColor);
             });
         }
 
         function addSquare() {
             if (squares.length >= matrix.cols * matrix.rows) {
-                allSquaresDisplayed = true;
                 return;
             }
 
@@ -71,63 +64,40 @@
             let x = col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
             let y = row * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
 
-            // Check for overlap with existing squares
-            while (squares.some(square => square.x === x && square.y === y)) {
-                x += squareSize + spaceBetweenSquares; // Move the new square to the right
-                if (x >= canvas.width) { // If the new square is off the canvas, move it to the next row
-                    x = spaceBetweenSquares;
-                    y += squareSize + spaceBetweenSquares;
-                }
-            }
+            let newSquare = { id: squares.length + 1, row, col, x, y, color: 'blue', borderColor: 'black' };
 
-            let newSquare = { id: squares.length + 1, row, col, x, y, color: 'blue', borderColor: 'black', value: 1, startTime: new Date().getTime() };
-
-            squares.push(newSquare); // Add new square at the end of the array
-            furthestSquareInEachRow[row] = newSquare;
-
+            squares.push(newSquare);
             drawSquares();
-            displayGridInConsole();
         }
-        
+
         function moveSquares() {
-            // Update the positions of the squares
-            squares.forEach((square, index) => {
-                // Check if the square's row is full
-                const isRowFull = squares.filter(s => s.row === square.row).length === matrix.cols;
-                if (isRowFull) {
-                    square.y += 5; // Move the square down
-                } else {
-                    square.x += 5; // Move the square to the right
+            squares.forEach((square) => {
+                // Only move squares in the last row to the right
+                if (square.row === Math.floor(squares.length / matrix.cols)) {
+                    square.x += spaceBetweenSquares;
+                }
+
+                if (square.x + squareSize > canvas.width) {
+                    // When a square touches the right edge, reset all squares in the last row
+                    squares.filter(sq => sq.row === square.row).forEach(sq => {
+                        sq.x = sq.col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
+                    });
+                    // Add a new square to start a new row
+                    addSquare();
+                }
+
+                if (square.y + squareSize > canvas.height) {
+                    square.y = spaceBetweenSquares;
                 }
             });
 
-            // Remove squares that have reached the bottom right edge
-            squares = squares.filter(square => square.x < canvas.width && square.y < canvas.height);
-
             drawSquares();
-            displayGridInConsole();
         }
-
-        function displayGridInConsole() {
-            let gridString = '';
-            for (let row = 0; row < matrix.rows; row++) {
-                for (let col = 0; col < matrix.cols; col++) {
-                    const square = squares.find(square => square.row === row && square.col === col);
-                    gridString += square ? 'X' : '_';
-                }
-                gridString += '\n';
-            }
-            console.log(gridString);
-        }
-
-
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        setInterval(() => {
-            addSquare();
-            moveSquares();
-        }, 900)
+        setInterval(addSquare, 900);
+        setInterval(moveSquares, 900);
     </script>
 </body>
 

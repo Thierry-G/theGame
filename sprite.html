@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sprite Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas to full screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const spriteSheet = new Image();
+        spriteSheet.src = 'https://ergonote.com/img/GameSprite.png';
+
+        const spriteSize = 48;
+        const spriteSheetWidth = 240;
+        const spriteSheetHeight = 1104;
+
+        let currentSprite = { x: 144, y: 0 };  // Start at the fourth column
+
+        spriteSheet.onload = function() {
+            setInterval(drawNextSprite, 1000);  // Change sprite every 1 second
+        }
+
+        function drawNextSprite() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+
+            // Calculate scale factor based on device screen size
+            const scaleFactor = canvas.width / (4 * spriteSize + 3 * 10);  // Enough space for 4 sprites per line with 10px space between each
+
+            // Draw the sprites from row[0][1] and row[0][2] at the top of the screen, centered horizontally and close together
+            ctx.drawImage(spriteSheet, spriteSize, 0, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
+            ctx.drawImage(spriteSheet, spriteSize * 2, 0, spriteSize, spriteSize, canvas.width / 2, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
+
+            // Draw the current sprite below the first two sprites
+            ctx.drawImage(spriteSheet, currentSprite.x, currentSprite.y, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor / 2, spriteSize * scaleFactor * 1.5, spriteSize * scaleFactor, spriteSize * scaleFactor);
+
+            // Move to the next sprite
+            currentSprite.x += spriteSize;
+            if (currentSprite.x >= spriteSheetWidth) {
+                currentSprite.x = 144;  // Loop back to the fourth column
+                currentSprite.y += spriteSize;
+                if (currentSprite.y >= spriteSheetHeight) {
+                    currentSprite.y = 0;  // Loop back to the first sprite when we've gone through them all
+                }
+            }
+        }
+    </script>
+</body>
+</html>
