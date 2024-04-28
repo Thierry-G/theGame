@@ -32,6 +32,9 @@
             rows: 4
         };
 
+        let lastTime = Date.now();
+        const interval = 900;
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -55,10 +58,6 @@
         }
 
         function addSquare() {
-            if (squares.length >= matrix.cols * matrix.rows) {
-                return;
-            }
-
             let row = Math.floor(squares.length / matrix.cols);
             let col = squares.length % matrix.cols;
             let x = col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
@@ -72,18 +71,16 @@
 
         function moveSquares() {
             squares.forEach((square) => {
-                // Only move squares in the last row to the right
-                if (square.row === Math.floor(squares.length / matrix.cols)) {
-                    square.x += spaceBetweenSquares;
-                }
+                square.x += spaceBetweenSquares;
 
                 if (square.x + squareSize > canvas.width) {
-                    // When a square touches the right edge, reset all squares in the last row
-                    squares.filter(sq => sq.row === square.row).forEach(sq => {
-                        sq.x = sq.col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
-                    });
-                    // Add a new square to start a new row
-                    addSquare();
+                    square.x = square.col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
+                    if (square.row === matrix.rows - 1) {
+                        square.y += squareSize + spaceBetweenSquares;
+                        square.row = 0;
+                    } else {
+                        square.row++;
+                    }
                 }
 
                 if (square.y + squareSize > canvas.height) {
@@ -93,11 +90,21 @@
 
             drawSquares();
         }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let currentTime = Date.now();
+            if (currentTime - lastTime > interval) {
+                addSquare();
+                moveSquares();
+                lastTime = currentTime;
+            }
+        }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        setInterval(addSquare, 900);
-        setInterval(moveSquares, 900);
+        requestAnimationFrame(animate);
     </script>
 </body>
 
