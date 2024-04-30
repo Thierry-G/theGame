@@ -6,7 +6,10 @@
             "type": "msedge",
             "name": "http://localhost:8080",
             "request": "launch",
-            "url": "http://localhost:8080/${fileBasename}";
+            "url": "http://localhost:8080/${fileBasename}",
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
         },
         {
             "type": "msedge",
@@ -15,10 +18,8 @@
             "runtimeArgs": [
                 "--remote-debugging-port=9222"
             ],
-            "url": "http://localhost:8080", 
-            "presentation": {
-                "hidden": true
-            }
+            "url": "http://localhost:8080/", 
+           
         },
         {
             "type": "msedge",

@@ -21,20 +21,9 @@
 <body>
     <canvas id="myCanvas"></canvas>
     <script>
-        const canvas = document.getElementById('myCanvas');
-        const ctx = canvas.getContext('2d');
-        let squares = [];
-        let squareSize;
-        let spaceBetweenSquares;
-
-        let matrix = {
-            cols: 4,
-            rows: 4
-        };
-
-        let lastTime = Date.now();
-        const interval = 900;
-
+        /**
+         * Resize the canvas and calculate square size and space between squares.
+         */
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -43,6 +32,14 @@
             drawSquares();
         }
 
+        /**
+         * Draw a square on the canvas.
+         * @param {number} x - The x-coordinate of the top-left corner of the square.
+         * @param {number} y - The y-coordinate of the top-left corner of the square.
+         * @param {number} size - The size of the square.
+         * @param {string} color - The fill color of the square.
+         * @param {string} borderColor - The border color of the square.
+         */
         function drawSquare(x, y, size, color, borderColor) {
             ctx.fillStyle = color;
             ctx.fillRect(x, y, size, size);
@@ -50,6 +47,9 @@
             ctx.strokeRect(x, y, size, size);
         }
 
+        /**
+         * Draw all the squares on the canvas.
+         */
         function drawSquares() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             squares.forEach((square) => {
@@ -57,7 +57,14 @@
             });
         }
 
+        /**
+         * Add a new square to the canvas.
+         */
         function addSquare() {
+            if (squares.length >= matrix.cols * matrix.rows) {
+                return;
+            }
+
             let row = Math.floor(squares.length / matrix.cols);
             let col = squares.length % matrix.cols;
             let x = col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
@@ -69,18 +76,23 @@
             drawSquares();
         }
 
+        /**
+         * Move the squares on the canvas.
+         */
         function moveSquares() {
             squares.forEach((square) => {
-                square.x += spaceBetweenSquares;
+                // Only move squares in the last row to the right
+                if (square.row === Math.floor(squares.length / matrix.cols)) {
+                    square.x += spaceBetweenSquares;
+                }
 
                 if (square.x + squareSize > canvas.width) {
-                    square.x = square.col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
-                    if (square.row === matrix.rows - 1) {
-                        square.y += squareSize + spaceBetweenSquares;
-                        square.row = 0;
-                    } else {
-                        square.row++;
-                    }
+                    // When a square touches the right edge, reset all squares in the last row
+                    squares.filter(sq => sq.row === square.row).forEach(sq => {
+                        sq.x = sq.col * (squareSize + spaceBetweenSquares) + spaceBetweenSquares;
+                    });
+                    // Add a new square to start a new row
+                    addSquare();
                 }
 
                 if (square.y + squareSize > canvas.height) {
@@ -91,19 +103,41 @@
             drawSquares();
         }
 
-        function animate() {
+        /**
+         * Animate the movement of squares on the canvas.
+         * @param {number} time - The current time.
+         */
+        function animate(time) {
             requestAnimationFrame(animate);
-            let currentTime = Date.now();
-            if (currentTime - lastTime > interval) {
+            if (time - lastTime > interval) {
                 addSquare();
                 moveSquares();
-                lastTime = currentTime;
+                lastTime = time;
             }
         }
 
+        // Get the canvas element and its context
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize variables
+        let squares = [];
+        let squareSize;
+        let spaceBetweenSquares;
+
+        let matrix = {
+            cols: 4,
+            rows: 4
+        };
+
+        let lastTime = 0;
+        const interval = 900;
+
+        // Resize the canvas when the window is resized
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // Start the animation
         requestAnimationFrame(animate);
     </script>
 </body>

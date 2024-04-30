@@ -1,9 +1,41 @@
+$eBlue: rgb(18, 108, 227);
+$eGray: rgb(245, 245, 255);
+
 body {
-    overflow: hidden;
     margin: 0;
     padding: 0;
     border: 0;
     font-size: 16px;
+    overflow: hidden;
+    background-color: $eBlue;
+
+    #controlButton {
+        z-index: 10000000000000000; // increased z-index
+        position: fixed;
+        bottom: 1.618em;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block;
+        height: 4.618em;
+        width: 4.618em;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+
+
+    &.intro {
+        #header {
+            height: 100% !important;
+        }
+
+        #controlButton {
+            border: 1px solid $eBlue;
+        }
+
+        #gameCanvas {
+            display: none;
+        }
+    }
 }
 
 canvas {
@@ -14,7 +46,7 @@ canvas {
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: rgb(18, 108, 227);
+    background-color: $eBlue;
 }
 
 #header {
@@ -22,11 +54,11 @@ canvas {
     top: 0;
     left: 50%;
     width: 100%;
-    z-index: 9999999;
-    //height: 3.236em;
+    z-index: 9999; // decreased z-index
     transform: translateX(-50%);
     text-align: center;
-    background-color: #f5f5f5;
+    background-color: $eGray;
+    transition: height 0.5s ease-in-out;
 }
 
 #levelDisplay {
@@ -44,24 +76,11 @@ canvas {
     right: 1.618em;
 }
 
-#controlButton {
-    position: fixed;
-    bottom: 1.618em;
-    z-index: 999999;
-    left: 50%;
-    transform: translateX(-50%);
-    display: block;
-    height: 4.618em;
-    width: 4.618em;
-    border-radius: 50%;
-    font-weight: bold;
-    border: 1px solid #f5f5f5;
-}
 
 #gameCanvas {
     z-index: 0;
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgb(18, 108, 227);
+    background-color: $eBlue;
 }

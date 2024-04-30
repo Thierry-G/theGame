@@ -1,7 +1,7 @@
 import Game from './lib/Game.js';
 
 const game = new Game();
-const header = document.getElementById('header');
+console.log(game);
 
 window.onload = function () {
 
@@ -20,14 +20,30 @@ window.onload = function () {
 };
 
 function intro() {
-    header.style.backgroundColor = 'rgb(18, 108, 227)';
     game.level = 1;
 
     console.log('intro');
     console.log(game.matrix);
+   
 }
-function play() {
-    header.style.backgroundColor = '#f5f5f5';
+function addNewStyle(newStyle) {
+    var styleElement = document.getElementById('styles_js');
+    if (!styleElement) {
+        styleElement = document.createElement('style');
+        styleElement.type = 'text/css';
+        styleElement.id = 'styles_js';
+        document.getElementsByTagName('head')[0].appendChild(styleElement);
+    }
+    styleElement.appendChild(document.createTextNode(newStyle));
+}
+
+//addNewStyle('td.EvenRow a {display:inline !important;}')
+
+
+function play() {   
+   console.log(header.style.height + 'px');
+    header.style.height = game.gameCanvas.height/6 + 'px';
+    header.remove('shrink')
     console.log()
     console.log('play');
 }

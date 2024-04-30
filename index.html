@@ -16,7 +16,8 @@
         <link rel="stylesheet" href="/assets/css/main.css">
     </head>
 
-<body>
+<body class="intro">
+    <button id="controlButton"  type="button">Play</button>
     <div id="header">
         <!-- The level display element shows the current level of the game -->
         <div id="levelDisplay" class="level-display">
@@ -24,12 +25,10 @@
         </div>
     </div>
     <!-- The control button element is used to start, pause, resume, or replay the game -->
-    <button id="controlButton" class="control-button" type="button">
-        Play
-    </button>
+
     <!-- The game canvas element is where the game is rendered -->
-    <canvas id="gameCanvas" class="game-canvas"></canvas>
-    <script src="/assets/js/main.js" type="module"></script>
+    <canvas id="gameCanvas"></canvas>
+   
 </body>
 
 </html>

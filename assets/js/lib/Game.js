@@ -17,14 +17,14 @@ export default class Game {
         //this.squareSize = Math.min(this.gameCanvas.width, this.gameCanvas.height) / this.squareCount;
         this.squareSize = 96;
         this.horizontalSpacing = this.squareSize / 4;
-        
+
         this.verticalSpacing = this.gameCanvas.height / (this.rowCount + 1);
         this.horizontalPosition = this.horizontalSpacing;
         this.verticalPosition = this.verticalSpacing;
 
         this.controlButton = document.getElementById('controlButton');
         this.levelDisplay = document.getElementById('levelDisplay');
-        this.gameLevel = 0;
+
         this.replayCount = 0;
         this.totalSquares = 0;
         this.colors = Array(this.squareCount * this.rowCount).fill('#0000FF');
@@ -32,9 +32,10 @@ export default class Game {
 
         this.board = new Board(this.rowCount, this.squareCount);
         console.log(this.board);
+        this.init();
         //console.log(this.round.countPairs() +' pairs found in the matrix');
         //console.log(this.round.countPairsInRow());
-        
+
         //this.matrix = new Engine(this.rowCount, this.squareCount);
         // this.matrix = new Array(this.rowCount);
         // console.log(this.matrix)
@@ -43,8 +44,8 @@ export default class Game {
         //     this.matrix[i] = new Array(this.squareCount).fill(this.generateRandomNums());
         // }
 
-        this.controlButton.addEventListener('click', () => this.controlButtonClick());
-        this.gameCanvas.addEventListener('click', (event) => this.canvasClick(event));
+        //this.controlButton.addEventListener('click', () => this.controlButtonClick());
+        //this.gameCanvas.addEventListener('click', (event) => this.canvasClick(event));
     }
 
     drawSquares() {
@@ -96,7 +97,42 @@ export default class Game {
         }
     }
 
+    play() {
+        document.body.classList.remove('intro');
+        this.controlButton.innerText = 'Pause';
+        this.animationId = requestAnimationFrame(() => this.updateGame(this.animationId));
+    }
+    pause() {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+        this.controlButton.innerText = 'Play';
+    }
+
+    init() {
+        document.body.classList.add('intro');
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        this.horizontalPosition = 0;
+        this.verticalPosition = 0;
+        this.totalSquares = 0;
+        this.squareNumbers = Array(this.squareCount * this.rowCount).fill(null);
+        this.replayCount += 1;
+        this.horizontalSpeed = 1;
+        this.verticalSpeed = 1;
+        this.gameLevel = 1;
+        this.levelDisplay.innerText = 'Level ' + this.gameLevel;
+        this.levelDisplay.style.visibility = 'visible';
+
+        //this.animationId = requestAnimationFrame(() => this.updateGame());
+        this.controlButton.addEventListener('click', () => this.controlButtonClick());
+    }
+
+    
+    
     controlButtonClick() {
+        console.log(this.controlButton.innerText)
         if (this.controlButton.innerText === 'Play' || this.controlButton.innerText === 'Replay') {
             if (this.animationId) {
                 cancelAnimationFrame(this.animationId);
@@ -119,17 +155,21 @@ export default class Game {
             this.levelDisplay.style.visibility = 'visible';
             // this.randomNumbers = this.generatePairs(this.gameLevel);
             // this.shuffleArray(this.randomNumbers);
-            this.animationId = requestAnimationFrame(() => this.updateGame());
-            this.controlButton.innerText = 'Pause';
+
+           this.play();
+           this.controlButton.innerText = 'Play';
+    
         } else if (this.controlButton.innerText === 'Pause') {
-            cancelAnimationFrame(this.animationId);
-            this.controlButton.innerText = 'Resume';
+            this.pause();
+            return;
         } else if (this.controlButton.innerText === 'Resume') {
             this.animationId = requestAnimationFrame(() => this.updateGame());
-            this.controlButton.innerText = 'Pause';
+            this.init();
+            return;
+            this.controlButton.innerText = 'Play';
         }
     }
-
+    
     canvasClick(event) {
         let x = event.clientX - this.gameCanvas.getBoundingClientRect().left;
         let y = event.clientY - this.gameCanvas.getBoundingClientRect().top;

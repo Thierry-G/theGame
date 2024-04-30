@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Sprite Animation</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
+        }
+        #myCanvas {
+            cursor: default;
         }
     </style>
 </head>
@@ -29,33 +33,103 @@
         const spriteSheetHeight = 1104;
 
         let currentSprite = { x: 144, y: 0 };  // Start at the fourth column
+        let spriteStatus = { selected: false, x: 0, y: 0, matrixPosition: { row: 0, column: 0 } };
+
+        let lastUpdateTime = 0;
+        const spriteChangeInterval = 1000;  // Change sprite every 1 second
 
         spriteSheet.onload = function() {
-            setInterval(drawNextSprite, 1000);  // Change sprite every 1 second
+            requestAnimationFrame(drawNextSprite);
         }
 
-        function drawNextSprite() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+        canvas.addEventListener('mousemove', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-            // Calculate scale factor based on device screen size
-            const scaleFactor = canvas.width / (4 * spriteSize + 3 * 10);  // Enough space for 4 sprites per line with 10px space between each
-
-            // Draw the sprites from row[0][1] and row[0][2] at the top of the screen, centered horizontally and close together
-            ctx.drawImage(spriteSheet, spriteSize, 0, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
-            ctx.drawImage(spriteSheet, spriteSize * 2, 0, spriteSize, spriteSize, canvas.width / 2, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
-
-            // Draw the current sprite below the first two sprites
-            ctx.drawImage(spriteSheet, currentSprite.x, currentSprite.y, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor / 2, spriteSize * scaleFactor * 1.5, spriteSize * scaleFactor, spriteSize * scaleFactor);
-
-            // Move to the next sprite
-            currentSprite.x += spriteSize;
-            if (currentSprite.x >= spriteSheetWidth) {
-                currentSprite.x = 144;  // Loop back to the fourth column
-                currentSprite.y += spriteSize;
-                if (currentSprite.y >= spriteSheetHeight) {
-                    currentSprite.y = 0;  // Loop back to the first sprite when we've gone through them all
-                }
+            // Check if the mouse is over the current sprite
+            const scaleFactor = canvas.width / (4 * spriteSize + 3 * 10);
+            const spriteX = canvas.width / 2 - spriteSize * scaleFactor / 2;
+            const spriteY = spriteSize * scaleFactor * 1.5;
+            if (x >= spriteX && x <= spriteX + spriteSize * scaleFactor && y >= spriteY && y <= spriteY + spriteSize * scaleFactor) {
+                canvas.style.cursor = 'pointer';
+            } else {
+                canvas.style.cursor = 'default';
             }
+        });
+
+        canvas.addEventListener('click', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // Check if the click was on the current sprite
+            const scaleFactor = canvas.width / (4 * spriteSize + 3 * 10);
+            const spriteX = canvas.width / 2 - spriteSize * scaleFactor / 2;
+            const spriteY = spriteSize * scaleFactor * 1.5;
+            if (x >= spriteX && x <= spriteX + spriteSize * scaleFactor && y >= spriteY && y <= spriteY + spriteSize * scaleFactor) {
+                // If the sprite is already selected, replace it with sprites from column 1, rows 1 to 9 and remove the border
+                if (spriteStatus.selected && spriteStatus.x === currentSprite.x && spriteStatus.y === currentSprite.y) {
+                    spriteStatus = { selected: false, x: 0, y: 0 };
+                    currentSprite = { x: 0, y: 0 };
+                    currentSprite.x = spriteSize;
+                    currentSprite.y = 0;
+                    spriteChangeInterval = 500;  // Change sprite every 0.5 seconds
+                } else {
+                    // Update the sprite status
+                    spriteStatus = { 
+                        selected: true, 
+                        x: currentSprite.x, 
+                        y: currentSprite.y, 
+                        matrixPosition: { 
+                            row: currentSprite.y / spriteSize, 
+                            column: currentSprite.x / spriteSize 
+                        } 
+                    };
+                    // Update the current sprite to the one that was clicked
+                    currentSprite = { x: spriteStatus.x, y: spriteStatus.y };
+                }
+                console.log(JSON.stringify(spriteStatus));
+            }
+        });
+
+        function drawNextSprite(time) {
+            if (!lastUpdateTime || time - lastUpdateTime >= spriteChangeInterval) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+
+                // Calculate scale factor based on device screen size
+                const scaleFactor = canvas.width / (4 * spriteSize + 3 * 10);
+
+                // Draw the sprites from row[0][1] and row[0][2] at the top of the screen, centered horizontally and close together
+                ctx.drawImage(spriteSheet, spriteSize, 0, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
+                ctx.drawImage(spriteSheet, spriteSize * 2, 0, spriteSize, spriteSize, canvas.width / 2, 0, spriteSize * scaleFactor, spriteSize * scaleFactor);
+
+                // Draw the current sprite below the first two sprites
+                ctx.drawImage(spriteSheet, currentSprite.x, currentSprite.y, spriteSize, spriteSize, canvas.width / 2 - spriteSize * scaleFactor / 2, spriteSize * scaleFactor * 1.5, spriteSize * scaleFactor, spriteSize * scaleFactor);
+
+                // If the sprite is selected, draw a black border around it
+                if (spriteStatus.selected && spriteStatus.x === currentSprite.x && spriteStatus.y === currentSprite.y) {
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 5;
+                    ctx.strokeRect(canvas.width / 2 - spriteSize * scaleFactor / 2, spriteSize * scaleFactor * 1.5, spriteSize * scaleFactor, spriteSize * scaleFactor);
+                }
+
+                // Move to the next sprite
+                if (!spriteStatus.selected || (spriteStatus.x !== currentSprite.x || spriteStatus.y !== currentSprite.y)) {
+                    currentSprite.x += spriteSize;
+                    if (currentSprite.x >= spriteSheetWidth) {
+                        currentSprite.x = 144;  // Loop back to the fourth column
+                        currentSprite.y += spriteSize;
+                        if (currentSprite.y >= spriteSheetHeight) {
+                            currentSprite.y = 0;  // Loop back to the first sprite when we've gone through them all
+                        }
+                    }
+                }
+
+                lastUpdateTime = time;
+            }
+
+            requestAnimationFrame(drawNextSprite);
         }
     </script>
 </body>
